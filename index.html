@@ -45,6 +45,48 @@
     margin:14px auto;
     max-width:180px;
   }
+  
+  /* Стили для контейнера с моделью */
+  .model-container {
+    position: relative;
+    padding-top: 56%;
+    margin-top: 12px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 50%, #a1c4fd 100%);
+  }
+  
+  .model-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  
+  /* Стили для надписи "Крути сердечко мышкой" */
+  .model-instruction {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    color: #ff6b6b;
+    z-index: 10;
+    pointer-events: none;
+    animation: fadeInOut 2s ease-in-out infinite;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  
+  @keyframes fadeInOut {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+  }
 </style>
 </head>
 <body>
@@ -52,17 +94,17 @@
     <h1>для тебя любовь моя ❤️</h1>
     <p class="lead">Ты — мой лучик солнца, прекрасней всех на свете. Тебя я повстречал, и о всех проблемах позабывал. Мы с тобой вместе на века. Без тебя я не могу, ведь ты — моя судьба.</p>
 
-    <div style="position:relative;padding-top:56%;margin-top:12px;border-radius:12px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.12);">
+    <div class="model-container">
       <iframe
         title="Сердце"
-        src="https://sketchfab.com/models/f39ce19b92e246268f4c501b72ea7d0e/embed?autostart=1&internal=1&tracking=0&ui_ar=0&ui_infos=0&ui_snapshots=1&ui_stop=0&ui_theatre=1&ui_watermark=0&ui_controls=0&ui_hint=0&ui_annotations=0"
+        src="https://sketchfab.com/models/f39ce19b92e246268f4c501b72ea7d0e/embed?autostart=1&preload=1&ui_controls=0&ui_infos=0&ui_help=0&ui_settings=0&ui_vr=0&ui_ar=0&ui_snapshots=0&ui_stop=0&ui_annotations=0&ui_hint=0&ui_theatre=0&ui_watermark=0&transparent=1"
         frameborder="0"
         allow="autoplay; fullscreen; vr; xr-spatial-tracking"
         allowfullscreen
         mozallowfullscreen="true"
-        webkitallowfullscreen="true"
-        style="position:absolute;top:0;left:0;width:100%;height:100%;">
+        webkitallowfullscreen="true">
       </iframe>
+      <div class="model-instruction">Крути сердечко мышкой 💖</div>
     </div>
 
     <div class="row">
@@ -91,5 +133,35 @@
 
     <footer>
   </div>
+
+  <script>
+    // Добавляем обработку для изменения курсора при наведении
+    document.addEventListener('DOMContentLoaded', function() {
+      const iframe = document.querySelector('iframe');
+      
+      // Ждем загрузки iframe
+      iframe.addEventListener('load', function() {
+        // Меняем курсор при наведении на iframe
+        iframe.style.cursor = 'grab';
+        
+        // Обработчики для вращения
+        let isDragging = false;
+        
+        iframe.addEventListener('mousedown', function() {
+          isDragging = true;
+          iframe.style.cursor = 'grabbing';
+        });
+        
+        document.addEventListener('mouseup', function() {
+          isDragging = false;
+          iframe.style.cursor = 'grab';
+        });
+        
+        iframe.addEventListener('mouseleave', function() {
+          iframe.style.cursor = 'default';
+        });
+      });
+    });
+  </script>
 </body>
 </html>
