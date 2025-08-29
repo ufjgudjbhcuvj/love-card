@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Открытка — для тебя ❤️</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial;margin:1rem;color:#111;background:linear-gradient(180deg,#fff8fb,#fff);}
+  .card{max-width:780px;margin:0 auto;padding:20px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.08);background:rgba(255,255,255,0.86);}
+  h1{margin:0 0 .25rem;font-size:1.6rem}
+  p.lead{margin:0 0 1rem;color:#444}
+  .cta{display:inline-flex;align-items:center;gap:.6rem;padding:12px 16px;border-radius:10px;border:0;background:#ff2d55;color:white;font-weight:600;text-decoration:none;font-size:16px;box-shadow:0 6px 18px rgba(255,45,85,0.18);}
+  .small{font-size:13px;color:#666;margin-top:8px}
+  .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+  .panel{flex:1 1 220px;background:#fff;padding:12px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.04)}
+  .panel h3{margin:0 0 .5rem;font-size:15px}
+  .note{font-size:13px;color:#555}
+  .heart{width:120px;height:120px;display:block;margin:14px auto}
+  footer{margin-top:18px;font-size:13px;color:#777}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Для тебя ❤️</h1>
+    <p class="lead">Приложи iPhone к метке на открытке — откроется эта страница. Нажми «Открыть в AR», чтобы увидеть 3D‑сердечко в реальном пространстве. Также можно включить нашу песню и прочитать послание.</p>
+
+    <p style="text-align:center;margin-top:6px;">
+      <a class="cta" rel="ar" href="https://assets.science.nasa.gov/content/dam/science/psd/solar/2023/09/s/Sun_1_1391000.usdz">
+        Открыть в AR — ❤️
+      </a>
+    </p>
+    <p class="small" style="text-align:center">Подсказка: замените ссылку в кнопке на свой <code>https://.../heart.usdz</code> (файл .usdz должен быть доступен по HTTPS).</p>
+
+    <div class="row">
+      <div class="panel">
+        <h3>Послание</h3>
+        <p class="note">Ты — моё лучшее решение. Каждый момент с тобой — как мягкий свет в конце длинного дня. Приложи телефон, посмотри на сердце в AR и знай: я рядом.</p>
+      </div>
+
+      <div class="panel">
+        <h3>Наша песня</h3>
+        <div style="position:relative;padding-top:56%;">
+          <iframe src="https://www.youtube.com/embed/3JWTaaS7LdU?rel=0&modestbranding=1" style="position:absolute;left:0;top:0;width:100%;height:100%;border:0;" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+        <p class="small">Если хочешь конкретную песню — пришли название, и я поменяю ссылку.</p>
+      </div>
+
+      <div class="panel">
+        <h3>Интерактив</h3>
+        <p class="note">Поверни телефон, шагни чуть вперёд — сердце появится на столе и будет масштабироваться под твои движения.</p>
+        <svg class="heart" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 21s-7.5-4.4-9.2-7.09C.9 10.77 4 .5 7 3.5 8.7 5.17 12 8 12 8s3.3-2.83 5-4.5C20 0.5 23.1 10.77 21.2 13.91 19.5 16.6 12 21 12 21z" fill="#ff2d55" opacity="0.95"/>
+        </svg>
+      </div>
+    </div>
+
+    <footer>
+      <strong>Инструкции для записи в NTAG216</strong><br>
+      1) Открой приложение <em>NFC Tools</em> (iOS/Android).<br>
+      2) Выбери Write → Add a record → URL/URI → вставь ссылку на эту HTML‑страницу (или прямо на .usdz).<br>
+      3) Нажми Write и поднеси метку.<br>
+      <br>
+      Совет: если хочешь менять содержимое позже — запиши в метку ссылку на редирект (Netlify/GitHub Pages). Тогда можно менять AR‑модель и текст без переписывания метки.
+    </footer>
+  </div>
+</body>
+</html>
