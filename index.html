@@ -41,11 +41,46 @@
     @keyframes pulse{0%,100%{transform: scale(1);}50%{transform: scale(1.2);}}
     .audio-wrapper audio{width:100%;border-radius:8px;background:transparent;}
     .ps-gif{display:block;margin:14px auto;max-width:180px;}
-    model-viewer{
-      width:100%;
-      height:400px;
-      border-radius:12px;
-      box-shadow:0 6px 18px rgba(0,0,0,0.12);
+    
+    /* Контейнер для model-viewer с градиентным фоном */
+    .model-container {
+      position: relative;
+      width: 100%;
+      height: 400px;
+      margin-top: 12px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+      background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 50%, #a1c4fd 100%);
+    }
+    
+    model-viewer {
+      width: 100%;
+      height: 100%;
+      --poster-color: transparent;
+    }
+    
+    /* Надпись "Крути сердечко" */
+    .model-instruction {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.95);
+      padding: 12px 24px;
+      border-radius: 25px;
+      font-size: 16px;
+      color: #ff6b6b;
+      z-index: 10;
+      pointer-events: none;
+      animation: fadeInOut 2s ease-in-out infinite;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      font-weight: 600;
+    }
+    
+    @keyframes fadeInOut {
+      0%, 100% { opacity: 0.9; transform: translateX(-50%) translateY(0); }
+      50% { opacity: 1; transform: translateX(-50%) translateY(-3px); }
     }
   </style>
   <!-- Подключаем скрипт model-viewer -->
@@ -56,8 +91,20 @@
     <h1>для тебя любовь моя ❤️</h1>
     <p class="lead">Ты — мой лучик солнца, прекрасней всех на свете. Тебя я повстречал, и о всех проблемах позабывал. Мы с тобой вместе на века. Без тебя я не могу, ведь ты — моя судьба.</p>
 
-    <!-- ТВОЯ 3D-МОДЕЛЬ -->
-    <model-viewer src="heart_in_love.glb" alt="Сердце" autoplay auto-rotate camera-controls></model-viewer>
+    <!-- Контейнер с градиентным фоном и 3D-моделью -->
+    <div class="model-container">
+      <model-viewer 
+        src="heart_in_love.glb" 
+        alt="Сердце" 
+        autoplay 
+        auto-rotate 
+        camera-controls
+        environment-image="neutral"
+        shadow-intensity="1"
+        exposure="1.2">
+      </model-viewer>
+      <div class="model-instruction">Крути сердечко 💖</div>
+    </div>
 
     <div class="row">
       <div class="panel">
