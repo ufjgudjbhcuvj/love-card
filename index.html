@@ -118,7 +118,7 @@
         <div class="audio-wrapper">
           <img src="https://avatanplus.com/files/resources/original/58c815ff8847615acd95ee46.png" alt="Лапка">
           <audio controls>
-            <source src="https://fine.sunproxy.net/file/d2l2S2ZsaGYvK3lvTjlnbnFpL05uR2xXNE5TbzdqZm5MVEd4b3Jkc051bG05Wk1FYzVta3lWa29jSVd4MC9TZi9PN3BsQ09EdDA2OFV3YXpqdHYzSWh0cTZWUHcyVVJJZ05JL0ZBTK50VkU9/Egor_Krid_-_Moya_nevesta_ty_moya_nevesta_(SkySound.cc).mp3" type="audio/mpeg">
+            <source src="https://fine.sunproxy.net/file/d2l2S2ZsaGYvK3lvTjlnbnFpL05uR2xXNE5TbzdqZm5MVEd4b3Jkc051bG05Wk1FYzVta3lWa29jSVd4MC9TZi9PN3BsQ09EdDA2OFV3YXpqdHYzSWh0cTZWUHcyVVJJZ05JL0ZBTk50VkU9/Egor_Krid_-_Moya_nevesta_ty_moya_nevesta_(SkySound.cc).mp3" type="audio/mpeg">
           </audio>
         </div>
         <p class="small">Для моей будущей невесты</p>
@@ -165,16 +165,20 @@
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
       scene.add(ambientLight);
       
-      const directionalLight = new THREE.DirectionalLight(0xff6b6b, 1.0);
-      directionalLight.position.set(5, 5, 5);
-      scene.add(directionalLight);
+      const directionalLight1 = new THREE.DirectionalLight(0xff6b6b, 0.8);
+      directionalLight1.position.set(5, 5, 5);
+      scene.add(directionalLight1);
       
-      const pointLight = new THREE.PointLight(0xff69b4, 1.5, 20);
+      const directionalLight2 = new THREE.DirectionalLight(0xff4757, 0.6);
+      directionalLight2.position.set(-5, -3, -5);
+      scene.add(directionalLight2);
+      
+      const pointLight = new THREE.PointLight(0xff69b4, 1.2, 20);
       pointLight.position.set(0, 3, 8);
       scene.add(pointLight);
       
       // Создаем красивое сердце
-      createBeautifulHeart(scene);
+      createHeart(scene);
       
       // Настройка камеры
       camera.position.set(0, 0, 6);
@@ -195,13 +199,13 @@
         // Плавное вращение сердца
         const heart = scene.getObjectByName('heart');
         if (heart) {
-          heart.rotation.y += 0.01;
+          heart.rotation.y += 0.008;
         }
         
         // Анимация пульсации
         const time = Date.now() * 0.002;
         if (heart) {
-          const pulse = 1 + Math.sin(time) * 0.05;
+          const pulse = 1 + Math.sin(time) * 0.03;
           heart.scale.set(pulse, pulse, pulse);
         }
         
@@ -218,78 +222,75 @@
       });
     }
     
-    // Функция создания красивого сердца
-    function createBeautifulHeart(scene) {
-      // Создаем геометрию сердца
-      const shape = new THREE.Shape();
+    // Функция создания сердца
+    function createHeart(scene) {
+      // Создаем сферу и деформируем ее в форму сердца
+      const geometry = new THREE.SphereGeometry(1, 64, 64);
       
-      // Рисуем форму сердца (правильную ориентацию)
-      const x = 0;
-      const y = 0;
-      const width = 2;
-      const height = 2;
+      const position = geometry.attributes.position;
+      const vertex = new THREE.Vector3();
       
-      // Начинаем с верхней точки сердца
-      shape.moveTo(x + width * 0.5, y + height * 0.8);
+      for (let i = 0; i < position.count; i++) {
+        vertex.fromBufferAttribute(position, i);
+        
+        // Нормализуем координаты
+        const length = vertex.length();
+        const normalized = new THREE.Vector3(
+          vertex.x / length,
+          vertex.y / length,
+          vertex.z / length
+        );
+        
+        // Параметрическое уравнение сердца
+        const t = Math.atan2(normalized.y, normalized.x);
+        const r = Math.sqrt(normalized.x * normalized.x + normalized.y * normalized.y);
+        const z = normalized.z;
+        
+        // Формула сердца в 3D
+        const heartShape = 1 - Math.sin(t) * Math.sin(t) * 0.5;
+        
+        // Применяем деформацию
+        vertex.x = vertex.x * heartShape;
+        vertex.y = vertex.y * heartShape;
+        vertex.z = vertex.z * 1.2; // Немного вытягиваем по Z
+        
+        // Создаем выемку в верхней части
+        if (normalized.y > 0.7) {
+          vertex.y *= 0.8;
+        }
+      }
       
-      // Левая кривая сердца
-      shape.bezierCurveTo(
-        x + width * 0.1, y + height * 0.6,
-        x - width * 0.2, y + height * 0.2,
-        x + width * 0.5, y - height * 0.2
-      );
-      
-      // Правая кривая сердца
-      shape.bezierCurveTo(
-        x + width * 1.2, y + height * 0.2,
-        x + width * 0.9, y + height * 0.6,
-        x + width * 0.5, y + height * 0.8
-      );
-      
-      // Экструдируем форму
-      const extrudeSettings = {
-        depth: 0.5,
-        bevelEnabled: true,
-        bevelThickness: 0.1,
-        bevelSize: 0.1,
-        bevelSegments: 8,
-        curveSegments: 32
-      };
-      
-      const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-      
-      // Центрируем геометрию
-      geometry.center();
+      geometry.computeVertexNormals();
       
       // Создаем красивый материал
       const material = new THREE.MeshPhongMaterial({
         color: 0xff3366,
         emissive: 0xff0044,
-        emissiveIntensity: 0.2,
+        emissiveIntensity: 0.1,
         specular: 0xff88aa,
-        shininess: 100,
+        shininess: 80,
         transparent: true,
-        opacity: 0.9
+        opacity: 0.92
       });
       
       // Создаем меш сердца
       const heart = new THREE.Mesh(geometry, material);
       heart.name = 'heart';
-      heart.scale.set(1.5, 1.5, 1.5);
+      heart.scale.set(2.2, 2.2, 2.2);
       
       // Правильная ориентация - острый конец вниз
-      heart.rotation.x = Math.PI; // Переворачиваем на 180 градусов
+      heart.rotation.x = Math.PI;
       
       scene.add(heart);
       
-      // Добавляем свечение внутри сердца
+      // Добавляем внутреннее свечение
       const innerGeometry = geometry.clone();
-      innerGeometry.scale(0.8, 0.8, 0.8);
+      innerGeometry.scale(0.85, 0.85, 0.85);
       
       const innerMaterial = new THREE.MeshBasicMaterial({
         color: 0xff0066,
         transparent: true,
-        opacity: 0.3,
+        opacity: 0.25,
         blending: THREE.AdditiveBlending
       });
       
