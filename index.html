@@ -173,12 +173,18 @@
       directionalLight2.position.set(-5, -3, -5);
       scene.add(directionalLight2);
       
-      const pointLight = new THREE.PointLight(0xff69b4, 1.2, 20);
+      const pointLight = new THREE.PointLight(0xff69b4, 1.0, 20);
       pointLight.position.set(0, 3, 8);
       scene.add(pointLight);
       
-      // Создаем красивое сердце
-      createHeart(scene);
+      // Создаем группу для сердца
+      const heartGroup = new THREE.Group();
+      heartGroup.name = 'heart';
+      
+      // Создаем части сердца
+      createHeartParts(heartGroup);
+      
+      scene.add(heartGroup);
       
       // Настройка камеры
       camera.position.set(0, 0, 6);
@@ -197,17 +203,12 @@
         controls.update();
         
         // Плавное вращение сердца
-        const heart = scene.getObjectByName('heart');
-        if (heart) {
-          heart.rotation.y += 0.008;
-        }
+        heartGroup.rotation.y += 0.008;
         
         // Анимация пульсации
         const time = Date.now() * 0.002;
-        if (heart) {
-          const pulse = 1 + Math.sin(time) * 0.03;
-          heart.scale.set(pulse, pulse, pulse);
-        }
+        const pulse = 1 + Math.sin(time) * 0.03;
+        heartGroup.scale.set(pulse, pulse, pulse);
         
         renderer.render(scene, camera);
       }
@@ -222,80 +223,65 @@
       });
     }
     
-    // Функция создания сердца
-    function createHeart(scene) {
-      // Создаем сферу и деформируем ее в форму сердца
-      const geometry = new THREE.SphereGeometry(1, 64, 64);
-      
-      const position = geometry.attributes.position;
-      const vertex = new THREE.Vector3();
-      
-      for (let i = 0; i < position.count; i++) {
-        vertex.fromBufferAttribute(position, i);
-        
-        // Нормализуем координаты
-        const length = vertex.length();
-        const normalized = new THREE.Vector3(
-          vertex.x / length,
-          vertex.y / length,
-          vertex.z / length
-        );
-        
-        // Параметрическое уравнение сердца
-        const t = Math.atan2(normalized.y, normalized.x);
-        const r = Math.sqrt(normalized.x * normalized.x + normalized.y * normalized.y);
-        const z = normalized.z;
-        
-        // Формула сердца в 3D
-        const heartShape = 1 - Math.sin(t) * Math.sin(t) * 0.5;
-        
-        // Применяем деформацию
-        vertex.x = vertex.x * heartShape;
-        vertex.y = vertex.y * heartShape;
-        vertex.z = vertex.z * 1.2; // Немного вытягиваем по Z
-        
-        // Создаем выемку в верхней части
-        if (normalized.y > 0.7) {
-          vertex.y *= 0.8;
-        }
-      }
-      
-      geometry.computeVertexNormals();
-      
-      // Создаем красивый материал
-      const material = new THREE.MeshPhongMaterial({
+    // Функция создания сердца из простых фигур
+    function createHeartParts(group) {
+      // Материал для сердца
+      const heartMaterial = new THREE.MeshPhongMaterial({
         color: 0xff3366,
         emissive: 0xff0044,
         emissiveIntensity: 0.1,
         specular: 0xff88aa,
         shininess: 80,
         transparent: true,
-        opacity: 0.92
+        opacity: 0.95
       });
       
-      // Создаем меш сердца
-      const heart = new THREE.Mesh(geometry, material);
-      heart.name = 'heart';
-      heart.scale.set(2.2, 2.2, 2.2);
+      // Левая половинка сердца (сфера)
+      const leftSphere = new THREE.SphereGeometry(0.8, 32, 32);
+      const leftMesh = new THREE.Mesh(leftSphere, heartMaterial);
+      leftMesh.position.set(-0.5, 0.3, 0);
+      group.add(leftMesh);
       
-      // Правильная ориентация - острый конец вниз
-      heart.rotation.x = Math.PI;
+      // Правая половинка сердца (сфера)
+      const rightSphere = new THREE.SphereGeometry(0.8, 32, 32);
+      const rightMesh = new THREE.Mesh(rightSphere, heartMaterial);
+      rightMesh.position.set(0.5, 0.3, 0);
+      group.add(rightMesh);
       
-      scene.add(heart);
+      // Нижняя часть сердца (конус)
+      const coneGeometry = new THREE.ConeGeometry(1.2, 1.5, 32);
+      const coneMesh = new THREE.Mesh(coneGeometry, heartMaterial);
+      coneMesh.position.set(0, -0.8, 0);
+      coneMesh.rotation.x = Math.PI;
+      group.add(coneMesh);
+      
+      // Масштабируем всю группу
+      group.scale.set(2, 2, 2);
       
       // Добавляем внутреннее свечение
-      const innerGeometry = geometry.clone();
-      innerGeometry.scale(0.85, 0.85, 0.85);
-      
       const innerMaterial = new THREE.MeshBasicMaterial({
         color: 0xff0066,
         transparent: true,
-        opacity: 0.25,
+        opacity: 0.2,
         blending: THREE.AdditiveBlending
       });
       
-      const innerHeart = new THREE.Mesh(innerGeometry, innerMaterial);
-      heart.add(innerHeart);
+      // Внутренние части (немного меньше)
+      const innerLeftSphere = new THREE.SphereGeometry(0.75, 32, 32);
+      const innerLeftMesh = new THREE.Mesh(innerLeftSphere, innerMaterial);
+      innerLeftMesh.position.set(-0.5, 0.3, 0.1);
+      group.add(innerLeftMesh);
+      
+      const innerRightSphere = new THREE.SphereGeometry(0.75, 32, 32);
+      const innerRightMesh = new THREE.Mesh(innerRightSphere, innerMaterial);
+      innerRightMesh.position.set(0.5, 0.3, 0.1);
+      group.add(innerRightMesh);
+      
+      const innerCone = new THREE.ConeGeometry(1.1, 1.4, 32);
+      const innerConeMesh = new THREE.Mesh(innerCone, innerMaterial);
+      innerConeMesh.position.set(0, -0.8, 0.1);
+      innerConeMesh.rotation.x = Math.PI;
+      group.add(innerConeMesh);
     }
     
     // Запускаем когда документ загружен
