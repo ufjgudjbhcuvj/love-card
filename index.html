@@ -134,24 +134,37 @@
       const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
       
       const container = document.getElementById('heart-container');
-      const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+      const renderer = new THREE.WebGLRenderer({ 
+        alpha: true, 
+        antialias: true,
+        precision: 'highp'
+      });
       renderer.setSize(container.clientWidth, container.clientHeight);
       renderer.setClearColor(0x000000, 0); // Прозрачный фон
       container.appendChild(renderer.domElement);
       
       // Добавляем освещение
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
       scene.add(ambientLight);
       
-      const directionalLight = new THREE.DirectionalLight(0xff6b6b, 1);
-      directionalLight.position.set(5, 5, 5);
-      scene.add(directionalLight);
+      const directionalLight1 = new THREE.DirectionalLight(0xff6b6b, 0.8);
+      directionalLight1.position.set(2, 3, 2);
+      scene.add(directionalLight1);
       
-      // Создаем сердце
-      createHeart(scene);
+      const directionalLight2 = new THREE.DirectionalLight(0xff4757, 0.5);
+      directionalLight2.position.set(-2, -1, -2);
+      scene.add(directionalLight2);
+      
+      const pointLight = new THREE.PointLight(0xff69b4, 0.7, 10);
+      pointLight.position.set(0, 0, 3);
+      scene.add(pointLight);
+      
+      // Создаем красивое сердце
+      createSmoothHeart(scene);
       
       // Настройка камеры
-      camera.position.z = 3;
+      camera.position.z = 4;
+      camera.position.y = 1;
       
       // Добавляем контролы для вращения
       const controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -159,11 +172,21 @@
       controls.dampingFactor = 0.05;
       controls.enableZoom = false;
       controls.enablePan = false;
+      controls.rotateSpeed = 0.8;
+      controls.minDistance = 3;
+      controls.maxDistance = 5;
       
       // Анимация
       function animate() {
         requestAnimationFrame(animate);
         controls.update();
+        
+        // Плавное вращение сердца
+        const heart = scene.getObjectByName('heart');
+        if (heart) {
+          heart.rotation.y += 0.005;
+        }
+        
         renderer.render(scene, camera);
       }
       
@@ -177,40 +200,75 @@
       });
     }
     
-    // Функция создания сердца
-    function createHeart(scene) {
-      // Простая геометрия сердца
-      const shape = new THREE.Shape();
-      shape.moveTo(0, 0);
-      shape.bezierCurveTo(2, 2, 3, 0, 0, -3);
-      shape.bezierCurveTo(-3, 0, -2, 2, 0, 0);
+    // Функция создания гладкого сердца
+    function createSmoothHeart(scene) {
+      // Создаем гладкую геометрию сердца
+      const heartShape = new THREE.Shape();
+      
+      // Более аккуратная форма сердца
+      const x = 0, y = 0;
+      const width = 1.5, height = 1.5;
+      
+      heartShape.moveTo(x, y + height * 0.25);
+      heartShape.bezierCurveTo(
+        x, y, 
+        x - width * 0.5, y, 
+        x - width * 0.5, y + height * 0.25
+      );
+      heartShape.bezierCurveTo(
+        x - width * 0.5, y + height * 0.5,
+        x, y + height * 0.75,
+        x, y + height
+      );
+      heartShape.bezierCurveTo(
+        x, y + height * 0.75,
+        x + width * 0.5, y + height * 0.5,
+        x + width * 0.5, y + height * 0.25
+      );
+      heartShape.bezierCurveTo(
+        x + width * 0.5, y,
+        x, y,
+        x, y + height * 0.25
+      );
       
       const extrudeSettings = {
-        depth: 0.5,
+        depth: 0.3,
         bevelEnabled: true,
-        bevelThickness: 0.1,
-        bevelSize: 0.1,
-        bevelSegments: 8
+        bevelThickness: 0.05,
+        bevelSize: 0.05,
+        bevelSegments: 16,
+        curveSegments: 32 // Больше сегментов для гладкости
       };
       
-      const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+      const geometry = new THREE.ExtrudeGeometry(heartShape, extrudeSettings);
+      
+      // Центрируем геометрию
+      geometry.center();
+      
+      // Красивый материал для сердца
       const material = new THREE.MeshPhongMaterial({
         color: 0xff6b6b,
         emissive: 0xff4757,
-        specular: 0xffffff,
+        emissiveIntensity: 0.3,
+        specular: 0xff9999,
         shininess: 100,
         transparent: true,
-        opacity: 0.9
+        opacity: 0.95,
+        flatShading: false
       });
       
       const heart = new THREE.Mesh(geometry, material);
-      heart.rotation.x = Math.PI;
+      heart.name = 'heart';
+      heart.scale.set(1.2, 1.2, 1.2); // Нормальный размер
+      heart.rotation.x = Math.PI / 6; // Немного наклоняем
       scene.add(heart);
       
       // Анимация пульсации
+      const initialScale = 1.2;
       function pulse() {
-        const scale = 1 + Math.sin(Date.now() * 0.002) * 0.1;
-        heart.scale.set(scale, scale, scale);
+        const time = Date.now() * 0.002;
+        const pulseScale = initialScale * (1 + Math.sin(time) * 0.1);
+        heart.scale.set(pulseScale, pulseScale, pulseScale);
         requestAnimationFrame(pulse);
       }
       pulse();
