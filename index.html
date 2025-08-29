@@ -45,64 +45,6 @@
     margin:14px auto;
     max-width:180px;
   }
-  
-  /* Контейнер для модели с градиентом */
-  .model-container {
-    position: relative;
-    padding-top: 56%;
-    margin-top: 12px;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 50%, #a1c4fd 100%);
-  }
-  .model-container iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
-    z-index: 2;
-  }
-  
-  /* Градиентный фон */
-  .gradient-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(255,154,158,0.6) 0%, rgba(250,208,196,0.6) 50%, rgba(161,196,253,0.6) 100%);
-    z-index: 1;
-    pointer-events: none;
-  }
-  
-  /* Инструкция для пользователя */
-  .model-instruction {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(255,255,255,0.9);
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 12px;
-    color: #ff6b6b;
-    z-index: 3;
-    pointer-events: none;
-    animation: fadeInOut 2s ease-in-out infinite;
-  }
-  
-  @keyframes fadeInOut {
-    0%, 100% { opacity: 0.7; }
-    50% { opacity: 1; }
-  }
-  
-  /* Скрываем все элементы управления Sketchfab */
-  .sketchfab-embed-wrapper {
-    display: none !important;
-  }
 </style>
 </head>
 <body>
@@ -110,18 +52,17 @@
     <h1>для тебя любовь моя ❤️</h1>
     <p class="lead">Ты — мой лучик солнца, прекрасней всех на свете. Тебя я повстречал, и о всех проблемах позабывал. Мы с тобой вместе на века. Без тебя я не могу, ведь ты — моя судьба.</p>
 
-    <div class="model-container">
-      <div class="gradient-background"></div>
+    <div style="position:relative;padding-top:56%;margin-top:12px;border-radius:12px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.12);">
       <iframe
         title="Сердце"
-        src="https://sketchfab.com/models/f39ce19b92e246268f4c501b72ea7d0e/embed?autostart=1&preload=1&ui_controls=0&ui_infos=0&ui_help=0&ui_settings=0&ui_vr=0&ui_ar=0&ui_snapshots=0&ui_stop=0&ui_annotations=0&ui_hint=0&ui_theatre=0&ui_watermark=0&transparent=1&background_color=transparent"
+        src="https://sketchfab.com/models/f39ce19b92e246268f4c501b72ea7d0e/embed?autostart=1&internal=1&tracking=0&ui_ar=0&ui_infos=0&ui_snapshots=1&ui_stop=0&ui_theatre=1&ui_watermark=0&ui_controls=0&ui_hint=0&ui_annotations=0"
         frameborder="0"
         allow="autoplay; fullscreen; vr; xr-spatial-tracking"
         allowfullscreen
         mozallowfullscreen="true"
-        webkitallowfullscreen="true">
+        webkitallowfullscreen="true"
+        style="position:absolute;top:0;left:0;width:100%;height:100%;">
       </iframe>
-      <div class="model-instruction">Крути сердечко мышкой 💖</div>
     </div>
 
     <div class="row">
@@ -150,75 +91,5 @@
 
     <footer>
   </div>
-  
-  <script>
-    // Ждем полной загрузки страницы
-    window.addEventListener('load', function() {
-      const iframe = document.querySelector('iframe');
-      
-      // Функция для перезагрузки iframe с чистыми параметрами
-      function reloadIframe() {
-        if (iframe) {
-          // Сохраняем оригинальный src
-          const originalSrc = iframe.src;
-          
-          // Очищаем и перезагружаем iframe
-          iframe.src = '';
-          setTimeout(() => {
-            // Используем URL с максимально отключенным интерфейсом
-            iframe.src = 'https://sketchfab.com/models/f39ce19b92e246268f4c501b72ea7d0e/embed?autostart=1&preload=1&ui_controls=0&ui_infos=0&ui_help=0&ui_settings=0&ui_vr=0&ui_ar=0&ui_snapshots=0&ui_stop=0&ui_annotations=0&ui_hint=0&ui_theatre=0&ui_watermark=0&transparent=1&background_color=transparent';
-          }, 100);
-        }
-      }
-      
-      // Перезагружаем iframe через 2 секунды после загрузки
-      setTimeout(reloadIframe, 2000);
-      
-      // Дополнительная перезагрузка через 5 секунд на всякий случай
-      setTimeout(reloadIframe, 5000);
-      
-      // Обработчик для вращения модели
-      iframe.addEventListener('load', function() {
-        // Даем время iframe полностью загрузиться
-        setTimeout(() => {
-          // Убеждаемся, что курсор меняется при наведении
-          iframe.style.cursor = 'grab';
-          
-          // Добавляем обработчики для вращения
-          let isDragging = false;
-          let lastX, lastY;
-          
-          iframe.addEventListener('mousedown', function(e) {
-            isDragging = true;
-            lastX = e.clientX;
-            lastY = e.clientY;
-            iframe.style.cursor = 'grabbing';
-          });
-          
-          document.addEventListener('mousemove', function(e) {
-            if (isDragging) {
-              const deltaX = e.clientX - lastX;
-              const deltaY = e.clientY - lastY;
-              lastX = e.clientX;
-              lastY = e.clientY;
-            }
-          });
-          
-          document.addEventListener('mouseup', function() {
-            isDragging = false;
-            iframe.style.cursor = 'grab';
-          });
-        }, 1000);
-      });
-    });
-    
-    // Блокируем контекстное меню на iframe
-    document.addEventListener('contextmenu', function(e) {
-      if (e.target.tagName === 'IFRAME') {
-        e.preventDefault();
-        return false;
-      }
-    });
-  </script>
 </body>
 </html>
