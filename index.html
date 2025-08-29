@@ -118,7 +118,7 @@
         <div class="audio-wrapper">
           <img src="https://avatanplus.com/files/resources/original/58c815ff8847615acd95ee46.png" alt="Лапка">
           <audio controls>
-            <source src="https://fine.sunproxy.net/file/d2l2S2ZsaGYvK3lvTjlnbnFpL05uR2xXNE5TbzdqZm5MVEd4b3Jkc051bG05Wk1FYzVta3lWa29jSVd4MC9TZi9PN3BsQ09EdDA2OFV3YXpqdHYzSWh0cTZWUHcyVVJJZ05JL0ZBTk50VkU9/Egor_Krid_-_Moya_nevesta_ty_moya_nevesta_(SkySound.cc).mp3" type="audio/mpeg">
+            <source src="https://fine.sunproxy.net/file/d2l2S2ZsaGYvK3lvTjlnbnFpL05uR2xXNE5TbzdqZm5MVEd4b3Jkc051bG05Wk1FYzVta3lWa29jSVd4MC9TZi9PN3BsQ09EdDA2OFV3YXpqdHYzSWh0cTZWUHcyVVJJZ05JL0ZBTK50VkU9/Egor_Krid_-_Moya_nevesta_ty_moya_nevesta_(SkySound.cc).mp3" type="audio/mpeg">
           </audio>
         </div>
         <p class="small">Для моей будущей невесты</p>
@@ -223,26 +223,27 @@
       // Создаем геометрию сердца
       const shape = new THREE.Shape();
       
-      // Рисуем форму сердца
+      // Рисуем форму сердца (правильную ориентацию)
       const x = 0;
       const y = 0;
       const width = 2;
       const height = 2;
       
-      shape.moveTo(x + width * 0.5, y + height * 0.25);
+      // Начинаем с верхней точки сердца
+      shape.moveTo(x + width * 0.5, y + height * 0.8);
       
-      // Левая половина сердца
+      // Левая кривая сердца
       shape.bezierCurveTo(
-        x + width * 0.1, y - height * 0.3,
-        x - width * 0.4, y + height * 0.2,
-        x + width * 0.5, y + height * 0.9
+        x + width * 0.1, y + height * 0.6,
+        x - width * 0.2, y + height * 0.2,
+        x + width * 0.5, y - height * 0.2
       );
       
-      // Правая половина сердца
+      // Правая кривая сердца
       shape.bezierCurveTo(
-        x + width * 1.4, y + height * 0.2,
-        x + width * 0.9, y - height * 0.3,
-        x + width * 0.5, y + height * 0.25
+        x + width * 1.2, y + height * 0.2,
+        x + width * 0.9, y + height * 0.6,
+        x + width * 0.5, y + height * 0.8
       );
       
       // Экструдируем форму
@@ -275,7 +276,9 @@
       const heart = new THREE.Mesh(geometry, material);
       heart.name = 'heart';
       heart.scale.set(1.5, 1.5, 1.5);
-      heart.rotation.x = Math.PI / 6;
+      
+      // Правильная ориентация - острый конец вниз
+      heart.rotation.x = Math.PI; // Переворачиваем на 180 градусов
       
       scene.add(heart);
       
