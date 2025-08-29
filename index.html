@@ -98,6 +98,11 @@
     0%, 100% { opacity: 0.7; }
     50% { opacity: 1; }
   }
+  
+  /* Скрываем все элементы управления Sketchfab */
+  .sketchfab-embed-wrapper {
+    display: none !important;
+  }
 </style>
 </head>
 <body>
@@ -109,7 +114,7 @@
       <div class="gradient-background"></div>
       <iframe
         title="Сердце"
-        src="https://sketchfab.com/models/f39ce19b92e246268f4c501b72ea7d0e/embed?autostart=1&preload=1&ui_controls=0&ui_infos=0&ui_help=0&ui_settings=0&ui_vr=0&ui_ar=0&ui_snapshots=0&ui_stop=0&ui_annotations=0&ui_hint=0&ui_theatre=0&ui_watermark=0&transparent=1"
+        src="https://sketchfab.com/models/f39ce19b92e246268f4c501b72ea7d0e/embed?autostart=1&preload=1&ui_controls=0&ui_infos=0&ui_help=0&ui_settings=0&ui_vr=0&ui_ar=0&ui_snapshots=0&ui_stop=0&ui_annotations=0&ui_hint=0&ui_theatre=0&ui_watermark=0&transparent=1&background_color=transparent"
         frameborder="0"
         allow="autoplay; fullscreen; vr; xr-spatial-tracking"
         allowfullscreen
@@ -147,20 +152,41 @@
   </div>
   
   <script>
-    // Включаем возможность вращения модели
-    document.addEventListener('DOMContentLoaded', function() {
-      // Даем время iframe загрузиться
-      setTimeout(function() {
-        const iframe = document.querySelector('iframe');
+    // Ждем полной загрузки страницы
+    window.addEventListener('load', function() {
+      const iframe = document.querySelector('iframe');
+      
+      // Функция для перезагрузки iframe с чистыми параметрами
+      function reloadIframe() {
         if (iframe) {
-          // Убираем pointer-events: none чтобы можно было взаимодействовать
-          iframe.style.pointerEvents = 'auto';
+          // Сохраняем оригинальный src
+          const originalSrc = iframe.src;
           
-          // Добавляем обработчик для плавного вращения
+          // Очищаем и перезагружаем iframe
+          iframe.src = '';
+          setTimeout(() => {
+            // Используем URL с максимально отключенным интерфейсом
+            iframe.src = 'https://sketchfab.com/models/f39ce19b92e246268f4c501b72ea7d0e/embed?autostart=1&preload=1&ui_controls=0&ui_infos=0&ui_help=0&ui_settings=0&ui_vr=0&ui_ar=0&ui_snapshots=0&ui_stop=0&ui_annotations=0&ui_hint=0&ui_theatre=0&ui_watermark=0&transparent=1&background_color=transparent';
+          }, 100);
+        }
+      }
+      
+      // Перезагружаем iframe через 2 секунды после загрузки
+      setTimeout(reloadIframe, 2000);
+      
+      // Дополнительная перезагрузка через 5 секунд на всякий случай
+      setTimeout(reloadIframe, 5000);
+      
+      // Обработчик для вращения модели
+      iframe.addEventListener('load', function() {
+        // Даем время iframe полностью загрузиться
+        setTimeout(() => {
+          // Убеждаемся, что курсор меняется при наведении
+          iframe.style.cursor = 'grab';
+          
+          // Добавляем обработчики для вращения
           let isDragging = false;
           let lastX, lastY;
-          let rotationX = 0;
-          let rotationY = 0;
           
           iframe.addEventListener('mousedown', function(e) {
             isDragging = true;
@@ -173,13 +199,6 @@
             if (isDragging) {
               const deltaX = e.clientX - lastX;
               const deltaY = e.clientY - lastY;
-              
-              rotationY += deltaX * 0.5;
-              rotationX += deltaY * 0.5;
-              
-              // Можно добавить анимацию вращения через CSS трансформации
-              // но для Sketchfab лучше оставить нативное управление
-              
               lastX = e.clientX;
               lastY = e.clientY;
             }
@@ -189,17 +208,16 @@
             isDragging = false;
             iframe.style.cursor = 'grab';
           });
-          
-          // Меняем курсор при наведении
-          iframe.addEventListener('mouseenter', function() {
-            iframe.style.cursor = 'grab';
-          });
-          
-          iframe.addEventListener('mouseleave', function() {
-            iframe.style.cursor = 'default';
-          });
-        }
-      }, 3000);
+        }, 1000);
+      });
+    });
+    
+    // Блокируем контекстное меню на iframe
+    document.addEventListener('contextmenu', function(e) {
+      if (e.target.tagName === 'IFRAME') {
+        e.preventDefault();
+        return false;
+      }
     });
   </script>
 </body>
