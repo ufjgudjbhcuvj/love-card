@@ -46,12 +46,47 @@
     max-width:180px;
   }
   
-  /* Скрываем элементы управления с помощью CSS */
-  .sketchfab-embed-wrapper iframe {
+  /* Стили для скрытия всех элементов управления */
+  .model-container {
+    position: relative;
+    padding-top: 56%;
+    margin-top: 12px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  }
+  .model-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
     pointer-events: none;
   }
-  .control-tooltip {
+  .model-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+  }
+  
+  /* Скрываем все возможные элементы Sketchfab */
+  .control-tooltip, 
+  .viewer-icon,
+  .settings-menu,
+  .control-badge,
+  [class*="icon-"],
+  [class*="control"],
+  [class*="tooltip"],
+  [class*="setting"] {
     display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
   }
 </style>
 </head>
@@ -60,17 +95,18 @@
     <h1>для тебя любовь моя ❤️</h1>
     <p class="lead">Ты — мой лучик солнца, прекрасней всех на свете. Тебя я повстречал, и о всех проблемах позабывал. Мы с тобой вместе на века. Без тебя я не могу, ведь ты — моя судьба.</p>
 
-    <div style="position:relative;padding-top:56%;margin-top:12px;border-radius:12px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.12);">
-<iframe
-  title="Сердце"
-  src="https://sketchfab.com/models/f39ce19b92e246268f4c501b72ea7d0e/embed?autostart=1&ui_controls=0&ui_infos=0&ui_help=0&ui_settings=0&ui_vr=0&ui_ar=0&ui_snapshots=0&ui_stop=0"
-  frameborder="0"
-  allow="autoplay; fullscreen; vr; xr-spatial-tracking"
-  allowfullscreen
-  mozallowfullscreen="true"
-  webkitallowfullscreen="true"
-  style="position:absolute;top:0;left:0;width:100%;height:100%;">
-</iframe>
+    <div class="model-container">
+      <iframe
+        title="Сердце"
+        src="https://sketchfab.com/models/f39ce19b92e246268f4c501b72ea7d0e/embed?autostart=1&preload=1&ui_controls=0&ui_infos=0&ui_help=0&ui_settings=0&ui_vr=0&ui_ar=0&ui_snapshots=0&ui_stop=0&ui_annotations=0&ui_hint=0&ui_theatre=0&ui_watermark=0&transparent=1"
+        frameborder="0"
+        allow="autoplay; fullscreen; vr; xr-spatial-tracking"
+        allowfullscreen
+        mozallowfullscreen="true"
+        webkitallowfullscreen="true"
+        sandbox="allow-scripts allow-same-origin allow-popups">
+      </iframe>
+      <div class="model-overlay"></div>
     </div>
 
     <div class="row">
@@ -101,21 +137,27 @@
   </div>
   
   <script>
-    // Дополнительная защита - скрываем элементы через JavaScript
-    setTimeout(() => {
-      const iframe = document.querySelector('iframe');
-      if (iframe) {
-        iframe.addEventListener('load', function() {
-          try {
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-            const controls = iframeDoc.querySelectorAll('.control-tooltip, .viewer-icon');
-            controls.forEach(control => control.style.display = 'none');
-          } catch (e) {
-            console.log('Не удалось получить доступ к содержимому iframe');
-          }
-        });
+    // Дополнительная защита - перезагружаем iframe после полной загрузки страницы
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(function() {
+        const iframe = document.querySelector('iframe');
+        if (iframe) {
+          const currentSrc = iframe.src;
+          iframe.src = '';
+          setTimeout(function() {
+            iframe.src = currentSrc;
+          }, 100);
+        }
+      }, 2000);
+    });
+    
+    // Блокируем правый клик на iframe чтобы предотвратить меню
+    document.addEventListener('contextmenu', function(e) {
+      if (e.target.tagName === 'IFRAME') {
+        e.preventDefault();
+        return false;
       }
-    }, 2000);
+    });
   </script>
 </body>
 </html>
