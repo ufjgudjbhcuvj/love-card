@@ -46,55 +46,70 @@
     max-width:180px;
   }
   
-  /* Стили для 3D контейнера */
+  /* Стили для контейнера с моделью */
   .model-container {
     position: relative;
-    height: 450px;
+    padding-top: 56%;
     margin-top: 12px;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 6px 18px rgba(0,0,0,0.12);
     background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 50%, #a1c4fd 100%);
-    cursor: grab;
   }
   
-  .model-container:active {
-    cursor: grabbing;
+  .model-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
   }
   
   /* Инструкция */
   .model-instruction {
     position: absolute;
-    bottom: 20px;
+    bottom: 15px;
     left: 50%;
     transform: translateX(-50%);
     background: rgba(255, 255, 255, 0.95);
-    padding: 12px 24px;
+    padding: 10px 20px;
     border-radius: 25px;
-    font-size: 16px;
+    font-size: 14px;
     color: #ff6b6b;
-    z-index: 10;
+    z-index: 100;
     pointer-events: none;
     animation: fadeInOut 2s ease-in-out infinite;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    font-weight: 600;
-    backdrop-filter: blur(5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    font-weight: 500;
   }
   
   @keyframes fadeInOut {
     0%, 100% { opacity: 0.9; transform: translateX(-50%) translateY(0); }
-    50% { opacity: 1; transform: translateX(-50%) translateY(-3px); }
+    50% { opacity: 1; transform: translateX(-50%) translateY(-2px); }
   }
   
-  /* Лоадер */
-  .loader {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: #ff6b6b;
-    font-size: 18px;
-    z-index: 5;
+  /* Скрываем элементы управления Sketchfab */
+  .sketchfab-embed-wrapper {
+    display: none !important;
+  }
+  
+  /* Стили для скрытия кнопок */
+  .control-tooltip, 
+  .viewer-icon,
+  .settings-menu,
+  .control-badge,
+  [class*="icon-"],
+  [class*="control"],
+  [class*="tooltip"],
+  [class*="setting"],
+  .button,
+  .sk-fab-button,
+  .ui-control {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
   }
 </style>
 </head>
@@ -103,8 +118,17 @@
     <h1>для тебя любовь моя ❤️</h1>
     <p class="lead">Ты — мой лучик солнца, прекрасней всех на свете. Тебя я повстречал, и о всех проблемах позабывал. Мы с тобой вместе на века. Без тебя я не могу, ведь ты — моя судьба.</p>
 
-    <div class="model-container" id="heart-container">
-      <div class="loader">Загружаем сердечко...</div>
+    <div class="model-container">
+      <iframe
+        id="heart-iframe"
+        title="Сердце"
+        src="https://sketchfab.com/models/f39ce19b92e246268f4c501b72ea7d0e/embed?autostart=1&preload=1&ui_controls=0&ui_infos=0&ui_help=0&ui_settings=0&ui_vr=0&ui_ar=0&ui_snapshots=0&ui_stop=0&ui_annotations=0&ui_hint=0&ui_theatre=0&ui_watermark=0&transparent=1"
+        frameborder="0"
+        allow="autoplay; fullscreen; vr; xr-spatial-tracking"
+        allowfullscreen
+        mozallowfullscreen="true"
+        webkitallowfullscreen="true">
+      </iframe>
       <div class="model-instruction">Крути сердечко мышкой 💖</div>
     </div>
 
@@ -135,193 +159,94 @@
     <footer>
   </div>
 
-  <!-- Three.js библиотека -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
-  
   <script>
-    // Инициализация Three.js сцена
-    function init() {
-      const container = document.getElementById('heart-container');
-      const loader = container.querySelector('.loader');
+    // Функция для скрытия кнопок Sketchfab
+    function hideSketchfabButtons() {
+      const iframe = document.getElementById('heart-iframe');
       
-      // Создаем сцену, камеру и рендерер
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
-      
-      const renderer = new THREE.WebGLRenderer({ 
-        alpha: true, 
-        antialias: true,
-        powerPreference: "high-performance"
-      });
-      renderer.setSize(container.clientWidth, container.clientHeight);
-      renderer.setClearColor(0x000000, 0);
-      renderer.setPixelRatio(window.devicePixelRatio);
-      container.appendChild(renderer.domElement);
-      
-      // Убираем лоадер после загрузки
+      if (iframe) {
+        // Периодически проверяем и скрываем кнопки
+        const checkAndHide = setInterval(() => {
+          try {
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            
+            // Находим и скрываем все элементы управления
+            const controls = iframeDoc.querySelectorAll([
+              '.control-tooltip',
+              '.viewer-icon',
+              '.settings-menu',
+              '.control-badge',
+              '[class*="icon-"]',
+              '[class*="control"]',
+              '[class*="tooltip"]',
+              '[class*="setting"]',
+              '.button',
+              '.sk-fab-button',
+              '.ui-control'
+            ].join(','));
+            
+            controls.forEach(control => {
+              control.style.display = 'none';
+              control.style.visibility = 'hidden';
+              control.style.opacity = '0';
+              control.style.pointerEvents = 'none';
+            });
+            
+            // Также скрываем элементы по их содержимому
+            const allElements = iframeDoc.querySelectorAll('*');
+            allElements.forEach(el => {
+              const text = el.textContent || '';
+              if (text.includes('Help') || text.includes('Settings') || text.includes('HD') || text.includes('Snapshot')) {
+                el.style.display = 'none';
+                el.style.visibility = 'hidden';
+              }
+            });
+            
+          } catch (e) {
+            // Ошибка доступа к iframe - нормально при кросс-доменных ограничениях
+          }
+        }, 1000);
+        
+        // Останавливаем проверку через 10 секунд
+        setTimeout(() => clearInterval(checkAndHide), 10000);
+      }
+    }
+    
+    // Альтернативный метод - перезагрузка iframe с другими параметрами
+    function reloadIframe() {
+      const iframe = document.getElementById('heart-iframe');
+      if (iframe) {
+        // Сохраняем текущий src
+        const currentSrc = iframe.src;
+        
+        // Перезагружаем iframe
+        iframe.src = '';
+        setTimeout(() => {
+          // Пробуем разные комбинации параметров
+          iframe.src = currentSrc + '&ui_help=0&ui_settings=0&ui_infos=0&ui_watermark=0';
+        }, 500);
+      }
+    }
+    
+    // Запускаем когда iframe загрузится
+    document.getElementById('heart-iframe').addEventListener('load', function() {
+      // Даем время iframe полностью загрузиться
       setTimeout(() => {
-        loader.style.display = 'none';
-      }, 1000);
-      
-      // Добавляем освещение
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
-      scene.add(ambientLight);
-      
-      const directionalLight1 = new THREE.DirectionalLight(0xff6b6b, 1.2);
-      directionalLight1.position.set(3, 4, 3);
-      directionalLight1.castShadow = true;
-      scene.add(directionalLight1);
-      
-      const directionalLight2 = new THREE.DirectionalLight(0xff4757, 0.8);
-      directionalLight2.position.set(-3, -2, -2);
-      scene.add(directionalLight2);
-      
-      const pointLight = new THREE.PointLight(0xff69b4, 1.5, 15);
-      pointLight.position.set(0, 2, 5);
-      scene.add(pointLight);
-      
-      const hemisphereLight = new THREE.HemisphereLight(0xffb7c5, 0x080820, 0.6);
-      scene.add(hemisphereLight);
-      
-      // Создаем красивое сердце
-      createRealisticHeart(scene);
-      
-      // Настройка камеры
-      camera.position.set(0, 0, 6);
-      
-      // Добавляем контролы для вращения
-      const controls = new THREE.OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true;
-      controls.dampingFactor = 0.06;
-      controls.rotateSpeed = 0.8;
-      controls.enableZoom = false;
-      controls.enablePan = false;
-      controls.minDistance = 4;
-      controls.maxDistance = 8;
-      
-      // Переменные для анимации
-      let heartMesh;
-      let pulseScale = 1.0;
-      let pulseDirection = 1;
-      
-      // Анимация
-      function animate() {
-        requestAnimationFrame(animate);
-        controls.update();
-        
-        // Анимация пульсации сердца
-        if (heartMesh) {
-          pulseScale += 0.01 * pulseDirection;
-          if (pulseScale > 1.1) pulseDirection = -1;
-          if (pulseScale < 0.95) pulseDirection = 1;
-          
-          heartMesh.scale.set(pulseScale, pulseScale, pulseScale);
-          heartMesh.rotation.y += 0.01;
-        }
-        
-        // Медленное вращение света
-        const time = Date.now() * 0.001;
-        pointLight.position.x = Math.sin(time) * 3;
-        pointLight.position.z = Math.cos(time) * 3 + 5;
-        
-        renderer.render(scene, camera);
-      }
-      
-      animate();
-      
-      // Обработчик изменения размера
-      window.addEventListener('resize', () => {
-        camera.aspect = container.clientWidth / container.clientHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(container.clientWidth, container.clientHeight);
-      });
-    }
+        hideSketchfabButtons();
+        reloadIframe();
+      }, 2000);
+    });
     
-    // Функция создания реалистичного сердца
-    function createRealisticHeart(scene) {
-      // Создаем сферу и деформируем ее в форму сердца
-      const geometry = new THREE.SphereGeometry(1.8, 64, 64);
-      
-      // Деформируем вершины для создания формы сердца
-      const position = geometry.attributes.position;
-      const vertex = new THREE.Vector3();
-      
-      for (let i = 0; i < position.count; i++) {
-        vertex.fromBufferAttribute(position, i);
-        
-        // Преобразуем в сферические координаты
-        const theta = Math.atan2(vertex.y, vertex.x);
-        const phi = Math.acos(vertex.z / vertex.length());
-        const r = vertex.length();
-        
-        // Деформируем для создания формы сердца
-        const heartShape = 1.0 - Math.sin(phi) * Math.sin(theta * 2.0) * 0.3;
-        const newR = r * heartShape;
-        
-        vertex.normalize().multiplyScalar(newR);
-        position.setXYZ(i, vertex.x, vertex.y, vertex.z);
-      }
-      
-      geometry.computeVertexNormals();
-      
-      // Красивый материал для сердца
-      const material = new THREE.MeshPhongMaterial({
-        color: 0xff3366,
-        emissive: 0xff0044,
-        emissiveIntensity: 0.3,
-        specular: 0xff88aa,
-        shininess: 120,
-        transparent: true,
-        opacity: 0.92,
-        flatShading: false
-      });
-      
-      // Создаем меш и добавляем его в сцену
-      heartMesh = new THREE.Mesh(geometry, material);
-      heartMesh.name = 'heart';
-      heartMesh.position.y = 0.5;
-      heartMesh.castShadow = true;
-      heartMesh.receiveShadow = true;
-      
-      scene.add(heartMesh);
-      
-      // Добавляем частицы вокруг сердца
-      createParticles(scene);
-    }
+    // Также запускаем после полной загрузки страницы
+    window.addEventListener('load', function() {
+      setTimeout(hideSketchfabButtons, 3000);
+    });
     
-    // Функция создания частиц вокруг сердца
-    function createParticles(scene) {
-      const particleGeometry = new THREE.BufferGeometry();
-      const particleCount = 200;
-      const posArray = new Float32Array(particleCount * 3);
-      
-      for (let i = 0; i < particleCount * 3; i += 3) {
-        const radius = 3 + Math.random() * 2;
-        const theta = Math.random() * Math.PI * 2;
-        const phi = Math.random() * Math.PI;
-        
-        posArray[i] = radius * Math.sin(phi) * Math.cos(theta);
-        posArray[i + 1] = radius * Math.cos(phi);
-        posArray[i + 2] = radius * Math.sin(phi) * Math.sin(theta);
-      }
-      
-      particleGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-      
-      const particleMaterial = new THREE.PointsMaterial({
-        color: 0xff69b4,
-        size: 0.1,
-        transparent: true,
-        opacity: 0.8,
-        blending: THREE.AdditiveBlending
-      });
-      
-      const particles = new THREE.Points(particleGeometry, particleMaterial);
-      scene.add(particles);
-    }
-    
-    // Запускаем когда документ загружен
-    document.addEventListener('DOMContentLoaded', init);
+    // Блокируем контекстное меню
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+      return false;
+    });
   </script>
 </body>
 </html>
