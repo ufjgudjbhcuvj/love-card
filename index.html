@@ -1,68 +1,124 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Открытка — для тебя любовь моя ❤️</title>
-<style>
-  body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial;margin:1rem;color:#111;background:linear-gradient(180deg,#fff8fb,#fff);}
-  .card{max-width:780px;margin:0 auto;padding:20px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.08);background:rgba(255,255,255,0.86);}
-  h1{margin:0 0 .25rem;font-size:1.6rem}
-  p.lead{margin:0 0 1rem;color:#444}
-  .small{font-size:13px;color:#666;margin-top:8px}
-  .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
-  .panel{flex:1 1 220px;background:#fff;padding:12px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.04)}
-  .panel h3{margin:0 0 .5rem;font-size:15px}
-  .note{font-size:13px;color:#555;text-align:center;}
-  footer{margin-top:18px;font-size:13px;color:#777}
-
-  .audio-wrapper{
-    background: linear-gradient(90deg, #ff9a9e 0%, #fad0c4 100%);
-    border-radius:12px;
-    padding:12px 16px;
-    display:flex;
-    align-items:center;
-    gap:12px;
-    box-shadow:0 6px 18px rgba(255,45,85,0.18);
-    margin-top:6px;
-  }
-  .audio-wrapper img{
-    width:32px;
-    height:32px;
-    animation: pulse 1s infinite;
-  }
-  @keyframes pulse{
-    0%, 100%{transform: scale(1);}
-    50%{transform: scale(1.2);}
-  }
-  .audio-wrapper audio{
-    width:100%;
-    border-radius:8px;
-    background:transparent;
-  }
-  .ps-gif{
-    display:block;
-    margin:14px auto;
-    max-width:180px;
-  }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Открытка — для тебя любовь моя ❤️</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial;
+      margin: 1rem;
+      color: #111;
+      background: linear-gradient(180deg, #fff8fb, #fff);
+    }
+    .card {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+      background: rgba(255, 255, 255, 0.86);
+    }
+    h1 {
+      margin: 0 0 0.25rem;
+      font-size: 1.6rem;
+    }
+    p.lead {
+      margin: 0 0 1rem;
+      color: #444;
+    }
+    .small {
+      font-size: 13px;
+      color: #666;
+      margin-top: 8px;
+    }
+    .row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+    .panel {
+      flex: 1 1 220px;
+      background: #fff;
+      padding: 12px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+    .panel h3 {
+      margin: 0 0 0.5rem;
+      font-size: 15px;
+    }
+    .note {
+      font-size: 13px;
+      color: #555;
+      text-align: center;
+    }
+    footer {
+      margin-top: 18px;
+      font-size: 13px;
+      color: #777;
+    }
+    .audio-wrapper {
+      background: linear-gradient(90deg, #ff9a9e 0%, #fad0c4 100%);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 6px 18px rgba(255, 45, 85, 0.18);
+      margin-top: 6px;
+    }
+    .audio-wrapper img {
+      width: 32px;
+      height: 32px;
+      animation: pulse 1s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+    .audio-wrapper audio {
+      width: 100%;
+      border-radius: 8px;
+      background: transparent;
+    }
+    .ps-gif {
+      display: block;
+      margin: 14px auto;
+      max-width: 180px;
+    }
+    .sketchfab-embed-wrapper {
+      position: relative;
+      padding-top: 56%;
+      margin-top: 12px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    }
+    .sketchfab-embed-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+  </style>
 </head>
 <body>
   <div class="card">
     <h1>для тебя любовь моя ❤️</h1>
     <p class="lead">Ты — мой лучик солнца, прекрасней всех на свете. Тебя я повстречал, и о всех проблемах позабывал. Мы с тобой вместе на века. Без тебя я не могу, ведь ты — моя судьба.</p>
 
-    <!-- Чистая 3D модель сердца без кнопок -->
-    <div style="position:relative;padding-top:56%;margin-top:12px;border-radius:12px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.12);">
+    <div class="sketchfab-embed-wrapper">
       <iframe
         title="Сердце"
-        src="https://sketchfab.com/models/f39ce19b92e246268f4c501b72ea7d0e/embed?autospin=1&autostart=1&ui_controls=0&ui_infos=0&ui_watermark=0&ui_stop=0&ui_hint=0&ui_annotations=0"
-        frameborder="0"
+        src="https://sketchfab.com/models/f39ce19b92e246268f4c501b72ea7d0e/embed?autostart=1&internal=1&tracking=0&ui_ar=0&ui_infos=0&ui_snapshots=1&ui_stop=0&ui_theatre=1&ui_watermark=0&ui_controls=0&ui_hint=0&ui_annotations=0"
         allow="autoplay; fullscreen; vr; xr-spatial-tracking"
         allowfullscreen
         mozallowfullscreen="true"
-        webkitallowfullscreen="true"
-        style="position:absolute;top:0;left:0;width:100%;height:100%;">
+        webkitallowfullscreen="true">
       </iframe>
     </div>
 
