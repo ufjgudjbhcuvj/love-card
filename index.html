@@ -46,46 +46,43 @@
     max-width:180px;
   }
   
-  /* Стили для контейнера с моделью */
+  /* Стили для 3D контейнера */
   .model-container {
     position: relative;
-    padding-top: 56%;
+    height: 400px;
     margin-top: 12px;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 6px 18px rgba(0,0,0,0.12);
     background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 50%, #a1c4fd 100%);
+    cursor: grab;
   }
   
-  .model-container iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
+  .model-container:active {
+    cursor: grabbing;
   }
   
-  /* Стили для надписи "Крути сердечко мышкой" */
+  /* Инструкция */
   .model-instruction {
     position: absolute;
     bottom: 15px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.9);
-    padding: 8px 16px;
-    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 10px 20px;
+    border-radius: 25px;
     font-size: 14px;
     color: #ff6b6b;
     z-index: 10;
     pointer-events: none;
     animation: fadeInOut 2s ease-in-out infinite;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    font-weight: 500;
   }
   
   @keyframes fadeInOut {
-    0%, 100% { opacity: 0.8; }
-    50% { opacity: 1; }
+    0%, 100% { opacity: 0.9; transform: translateX(-50%) translateY(0); }
+    50% { opacity: 1; transform: translateX(-50%) translateY(-2px); }
   }
 </style>
 </head>
@@ -94,16 +91,7 @@
     <h1>для тебя любовь моя ❤️</h1>
     <p class="lead">Ты — мой лучик солнца, прекрасней всех на свете. Тебя я повстречал, и о всех проблемах позабывал. Мы с тобой вместе на века. Без тебя я не могу, ведь ты — моя судьба.</p>
 
-    <div class="model-container">
-      <iframe
-        title="Сердце"
-        src="https://sketchfab.com/models/f39ce19b92e246268f4c501b72ea7d0e/embed?autostart=1&preload=1&ui_controls=0&ui_infos=0&ui_help=0&ui_settings=0&ui_vr=0&ui_ar=0&ui_snapshots=0&ui_stop=0&ui_annotations=0&ui_hint=0&ui_theatre=0&ui_watermark=0&transparent=1"
-        frameborder="0"
-        allow="autoplay; fullscreen; vr; xr-spatial-tracking"
-        allowfullscreen
-        mozallowfullscreen="true"
-        webkitallowfullscreen="true">
-      </iframe>
+    <div class="model-container" id="heart-container">
       <div class="model-instruction">Крути сердечко мышкой 💖</div>
     </div>
 
@@ -134,34 +122,102 @@
     <footer>
   </div>
 
+  <!-- Three.js библиотека -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+  
   <script>
-    // Добавляем обработку для изменения курсора при наведении
-    document.addEventListener('DOMContentLoaded', function() {
-      const iframe = document.querySelector('iframe');
+    // Инициализация Three.js сцена
+    function init() {
+      // Создаем сцену, камеру и рендерер
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
       
-      // Ждем загрузки iframe
-      iframe.addEventListener('load', function() {
-        // Меняем курсор при наведении на iframe
-        iframe.style.cursor = 'grab';
-        
-        // Обработчики для вращения
-        let isDragging = false;
-        
-        iframe.addEventListener('mousedown', function() {
-          isDragging = true;
-          iframe.style.cursor = 'grabbing';
-        });
-        
-        document.addEventListener('mouseup', function() {
-          isDragging = false;
-          iframe.style.cursor = 'grab';
-        });
-        
-        iframe.addEventListener('mouseleave', function() {
-          iframe.style.cursor = 'default';
-        });
+      const container = document.getElementById('heart-container');
+      const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setClearColor(0x000000, 0); // Прозрачный фон
+      container.appendChild(renderer.domElement);
+      
+      // Добавляем освещение
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(ambientLight);
+      
+      const directionalLight = new THREE.DirectionalLight(0xff6b6b, 1);
+      directionalLight.position.set(5, 5, 5);
+      scene.add(directionalLight);
+      
+      // Создаем сердце
+      createHeart(scene);
+      
+      // Настройка камеры
+      camera.position.z = 3;
+      
+      // Добавляем контролы для вращения
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.enableZoom = false;
+      controls.enablePan = false;
+      
+      // Анимация
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      
+      animate();
+      
+      // Обработчик изменения размера
+      window.addEventListener('resize', () => {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
       });
-    });
+    }
+    
+    // Функция создания сердца
+    function createHeart(scene) {
+      // Простая геометрия сердца
+      const shape = new THREE.Shape();
+      shape.moveTo(0, 0);
+      shape.bezierCurveTo(2, 2, 3, 0, 0, -3);
+      shape.bezierCurveTo(-3, 0, -2, 2, 0, 0);
+      
+      const extrudeSettings = {
+        depth: 0.5,
+        bevelEnabled: true,
+        bevelThickness: 0.1,
+        bevelSize: 0.1,
+        bevelSegments: 8
+      };
+      
+      const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+      const material = new THREE.MeshPhongMaterial({
+        color: 0xff6b6b,
+        emissive: 0xff4757,
+        specular: 0xffffff,
+        shininess: 100,
+        transparent: true,
+        opacity: 0.9
+      });
+      
+      const heart = new THREE.Mesh(geometry, material);
+      heart.rotation.x = Math.PI;
+      scene.add(heart);
+      
+      // Анимация пульсации
+      function pulse() {
+        const scale = 1 + Math.sin(Date.now() * 0.002) * 0.1;
+        heart.scale.set(scale, scale, scale);
+        requestAnimationFrame(pulse);
+      }
+      pulse();
+    }
+    
+    // Запускаем когда документ загружен
+    document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
 </html>
