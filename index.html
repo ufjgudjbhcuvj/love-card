@@ -64,52 +64,82 @@
     width: 100%;
     height: 100%;
     border: none;
+    z-index: 1;
   }
   
-  /* Инструкция */
+  /* Overlay для скрытия кнопок */
+  .sketchfab-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+  }
+  
+  /* Прозрачные блоки, которые закрывают кнопки */
+  .overlay-top-right {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 120px;
+    height: 40px;
+    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+    border-radius: 8px;
+    pointer-events: none;
+  }
+  
+  .overlay-bottom-right {
+    position: absolute;
+    bottom: 60px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+    border-radius: 8px;
+    pointer-events: none;
+  }
+  
+  .overlay-bottom-left {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    width: 200px;
+    height: 30px;
+    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+    border-radius: 8px;
+    pointer-events: none;
+  }
+  
+  /* Инструкция поверх overlay */
   .model-instruction {
     position: absolute;
-    bottom: 15px;
+    bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
     background: rgba(255, 255, 255, 0.95);
-    padding: 10px 20px;
+    padding: 12px 24px;
     border-radius: 25px;
-    font-size: 14px;
+    font-size: 16px;
     color: #ff6b6b;
-    z-index: 100;
+    z-index: 3;
     pointer-events: none;
     animation: fadeInOut 2s ease-in-out infinite;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-    font-weight: 500;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    font-weight: 600;
   }
   
   @keyframes fadeInOut {
     0%, 100% { opacity: 0.9; transform: translateX(-50%) translateY(0); }
-    50% { opacity: 1; transform: translateX(-50%) translateY(-2px); }
+    50% { opacity: 1; transform: translateX(-50%) translateY(-3px); }
   }
   
-  /* Скрываем элементы управления Sketchfab */
-  .sketchfab-embed-wrapper {
-    display: none !important;
-  }
-  
-  /* Стили для скрытия кнопок */
-  .control-tooltip, 
-  .viewer-icon,
-  .settings-menu,
-  .control-badge,
-  [class*="icon-"],
-  [class*="control"],
-  [class*="tooltip"],
-  [class*="setting"],
-  .button,
-  .sk-fab-button,
-  .ui-control {
+  /* Стили для скрытия элементов через iframe (если сработает) */
+  .hide-controls {
     display: none !important;
     visibility: hidden !important;
     opacity: 0 !important;
-    pointer-events: none !important;
   }
 </style>
 </head>
@@ -129,6 +159,14 @@
         mozallowfullscreen="true"
         webkitallowfullscreen="true">
       </iframe>
+      
+      <!-- Overlay для скрытия кнопок -->
+      <div class="sketchfab-overlay">
+        <div class="overlay-top-right"></div>
+        <div class="overlay-bottom-right"></div>
+        <div class="overlay-bottom-left"></div>
+      </div>
+      
       <div class="model-instruction">Крути сердечко мышкой 💖</div>
     </div>
 
@@ -160,92 +198,96 @@
   </div>
 
   <script>
-    // Функция для скрытия кнопок Sketchfab
-    function hideSketchfabButtons() {
+    // Функция для попытки скрыть кнопки через изменение URL
+    function tryDifferentUrls() {
       const iframe = document.getElementById('heart-iframe');
+      const urls = [
+        'https://sketchfab.com/models/f39ce19b92e246268f4c501b72ea7d0e/embed?autostart=1&ui_controls=0&ui_infos=0&ui_help=0&ui_settings=0&ui_vr=0&ui_ar=0&ui_snapshots=0&ui_stop=0&ui_annotations=0&ui_hint=0&ui_theatre=0&ui_watermark=0&transparent=1',
+        'https://sketchfab.com/models/f39ce19b92e246268f4c501b72ea7d0e/embed?autostart=1&ui_controls=0&ui_infos=0&ui_help=0&ui_settings=0',
+        'https://sketchfab.com/models/f39ce19b92e246268f4c501b72ea7d0e/embed?autostart=1&ui_controls=0',
+        'https://sketchfab.com/models/f39ce19b92e246268f4c501b72ea7d0e/embed?autostart=1&ui_hidden=1'
+      ];
       
-      if (iframe) {
-        // Периодически проверяем и скрываем кнопки
-        const checkAndHide = setInterval(() => {
-          try {
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-            
-            // Находим и скрываем все элементы управления
-            const controls = iframeDoc.querySelectorAll([
-              '.control-tooltip',
-              '.viewer-icon',
-              '.settings-menu',
-              '.control-badge',
-              '[class*="icon-"]',
-              '[class*="control"]',
-              '[class*="tooltip"]',
-              '[class*="setting"]',
-              '.button',
-              '.sk-fab-button',
-              '.ui-control'
-            ].join(','));
-            
-            controls.forEach(control => {
-              control.style.display = 'none';
-              control.style.visibility = 'hidden';
-              control.style.opacity = '0';
-              control.style.pointerEvents = 'none';
-            });
-            
-            // Также скрываем элементы по их содержимому
-            const allElements = iframeDoc.querySelectorAll('*');
-            allElements.forEach(el => {
-              const text = el.textContent || '';
-              if (text.includes('Help') || text.includes('Settings') || text.includes('HD') || text.includes('Snapshot')) {
-                el.style.display = 'none';
-                el.style.visibility = 'hidden';
-              }
-            });
-            
-          } catch (e) {
-            // Ошибка доступа к iframe - нормально при кросс-доменных ограничениях
-          }
-        }, 1000);
-        
-        // Останавливаем проверку через 10 секунд
-        setTimeout(() => clearInterval(checkAndHide), 10000);
-      }
+      let currentUrlIndex = 0;
+      
+      // Меняем URL каждые 3 секунды
+      const urlRotator = setInterval(() => {
+        iframe.src = urls[currentUrlIndex];
+        currentUrlIndex = (currentUrlIndex + 1) % urls.length;
+      }, 3000);
+      
+      // Останавливаем через 15 секунд
+      setTimeout(() => clearInterval(urlRotator), 15000);
     }
     
-    // Альтернативный метод - перезагрузка iframe с другими параметрами
-    function reloadIframe() {
-      const iframe = document.getElementById('heart-iframe');
-      if (iframe) {
-        // Сохраняем текущий src
-        const currentSrc = iframe.src;
+    // Функция для создания маски поверх кнопок
+    function createButtonMasks() {
+      const overlay = document.querySelector('.sketchfab-overlay');
+      
+      // Добавляем дополнительные маски
+      const masks = [
+        { top: '15px', right: '15px', width: '100px', height: '35px' },
+        { bottom: '70px', right: '15px', width: '35px', height: '35px' },
+        { bottom: '15px', left: '15px', width: '180px', height: '25px' },
+        { top: '60px', right: '15px', width: '35px', height: '35px' }
+      ];
+      
+      masks.forEach(mask => {
+        const div = document.createElement('div');
+        div.style.position = 'absolute';
+        div.style.background = 'linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)';
+        div.style.borderRadius = '6px';
+        div.style.pointerEvents = 'none';
         
-        // Перезагружаем iframe
-        iframe.src = '';
-        setTimeout(() => {
-          // Пробуем разные комбинации параметров
-          iframe.src = currentSrc + '&ui_help=0&ui_settings=0&ui_infos=0&ui_watermark=0';
-        }, 500);
-      }
+        Object.keys(mask).forEach(key => {
+          div.style[key] = mask[key];
+        });
+        
+        overlay.appendChild(div);
+      });
     }
     
     // Запускаем когда iframe загрузится
     document.getElementById('heart-iframe').addEventListener('load', function() {
-      // Даем время iframe полностью загрузиться
+      // Пробуем разные URL
+      setTimeout(tryDifferentUrls, 2000);
+      
+      // Создаем маски для кнопок
+      createButtonMasks();
+      
+      // Пытаемся скрыть элементы через попытку доступа к iframe
       setTimeout(() => {
-        hideSketchfabButtons();
-        reloadIframe();
-      }, 2000);
+        try {
+          const iframe = document.getElementById('heart-iframe');
+          const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+          
+          // Пытаемся найти и скрыть элементы
+          const styles = `
+            .control-tooltip, .viewer-icon, .settings-menu, .control-badge,
+            [class*="icon-"], [class*="control"], [class*="tooltip"],
+            [class*="setting"], .button, .sk-fab-button, .ui-control {
+              display: none !important;
+              visibility: hidden !important;
+              opacity: 0 !important;
+            }
+          `;
+          
+          const styleElement = iframeDoc.createElement('style');
+          styleElement.textContent = styles;
+          iframeDoc.head.appendChild(styleElement);
+          
+        } catch (e) {
+          console.log('Не удалось получить доступ к iframe (CORS)');
+        }
+      }, 3000);
     });
     
-    // Также запускаем после полной загрузки страницы
-    window.addEventListener('load', function() {
-      setTimeout(hideSketchfabButtons, 3000);
-    });
-    
-    // Блокируем контекстное меню
+    // Блокируем правый клик
     document.addEventListener('contextmenu', function(e) {
-      e.preventDefault();
-      return false;
+      if (e.target.closest('.model-container')) {
+        e.preventDefault();
+        return false;
+      }
     });
   </script>
 </body>
